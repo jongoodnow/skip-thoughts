@@ -3,8 +3,7 @@ import copy
 import sys
 
 #------------------------------------------------------------------------------
-sys.path.append('/u/rkiros/research/skipthoughts/')
-import skipthoughts
+from skipthoughts import skipthoughts
 #------------------------------------------------------------------------------
 
 class HomogeneousData():

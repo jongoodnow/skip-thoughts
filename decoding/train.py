@@ -41,8 +41,8 @@ def trainer(X, C, stmodel,
             maxlen_w=100,
             optimizer='adam',
             batch_size = 16,
-            saveto='/u/rkiros/research/semhash/models/toy.npz',
-            dictionary='/ais/gobi3/u/rkiros/bookgen/book_dictionary_large.pkl',
+            saveto='data/training.npz',
+            dictionary='data/dictionary.pkl',
             embeddings=None,
             saveFreq=1000,
             sampleFreq=100,
@@ -232,6 +232,12 @@ def trainer(X, C, stmodel,
                     print
 
         print 'Seen %d samples'%n_samples
+
+        print 'Saving...',
+        params = unzip(tparams)
+        numpy.savez(saveto, history_errs=[], **params)
+        pkl.dump(model_options, open('%s.pkl'%saveto, 'wb'))
+        print 'Done'
 
 if __name__ == '__main__':
     pass
