@@ -113,39 +113,43 @@ def encode(model, X, use_norm=True, verbose=True, batch_size=128, use_eos=False)
             print k
         numbatches = len(ds[k]) / batch_size + 1
         for minibatch in range(numbatches):
-            caps = ds[k][minibatch::numbatches]
+            try:
+                caps = ds[k][minibatch::numbatches]
 
-            if use_eos:
-                uembedding = numpy.zeros((k+1, len(caps), model['uoptions']['dim_word']), dtype='float32')
-                bembedding = numpy.zeros((k+1, len(caps), model['boptions']['dim_word']), dtype='float32')
-            else:
-                uembedding = numpy.zeros((k, len(caps), model['uoptions']['dim_word']), dtype='float32')
-                bembedding = numpy.zeros((k, len(caps), model['boptions']['dim_word']), dtype='float32')
-            for ind, c in enumerate(caps):
-                caption = captions[c]
-                for j in range(len(caption)):
-                    if d[caption[j]] > 0:
-                        uembedding[j,ind] = model['utable'][caption[j]]
-                        bembedding[j,ind] = model['btable'][caption[j]]
-                    else:
-                        uembedding[j,ind] = model['utable']['UNK']
-                        bembedding[j,ind] = model['btable']['UNK']
                 if use_eos:
-                    uembedding[-1,ind] = model['utable']['<eos>']
-                    bembedding[-1,ind] = model['btable']['<eos>']
-            if use_eos:
-                uff = model['f_w2v'](uembedding, numpy.ones((len(caption)+1,len(caps)), dtype='float32'))
-                bff = model['f_w2v2'](bembedding, numpy.ones((len(caption)+1,len(caps)), dtype='float32'))
-            else:
-                uff = model['f_w2v'](uembedding, numpy.ones((len(caption),len(caps)), dtype='float32'))
-                bff = model['f_w2v2'](bembedding, numpy.ones((len(caption),len(caps)), dtype='float32'))
-            if use_norm:
-                for j in range(len(uff)):
-                    uff[j] /= norm(uff[j])
-                    bff[j] /= norm(bff[j])
-            for ind, c in enumerate(caps):
-                ufeatures[c] = uff[ind]
-                bfeatures[c] = bff[ind]
+                    uembedding = numpy.zeros((k+1, len(caps), model['uoptions']['dim_word']), dtype='float32')
+                    bembedding = numpy.zeros((k+1, len(caps), model['boptions']['dim_word']), dtype='float32')
+                else:
+                    uembedding = numpy.zeros((k, len(caps), model['uoptions']['dim_word']), dtype='float32')
+                    bembedding = numpy.zeros((k, len(caps), model['boptions']['dim_word']), dtype='float32')
+                for ind, c in enumerate(caps):
+                    caption = captions[c]
+                    for j in range(len(caption)):
+                        if d[caption[j]] > 0:
+                            uembedding[j,ind] = model['utable'][caption[j]]
+                            bembedding[j,ind] = model['btable'][caption[j]]
+                        else:
+                            uembedding[j,ind] = model['utable']['UNK']
+                            bembedding[j,ind] = model['btable']['UNK']
+                    if use_eos:
+                        uembedding[-1,ind] = model['utable']['<eos>']
+                        bembedding[-1,ind] = model['btable']['<eos>']
+                if use_eos:
+                    uff = model['f_w2v'](uembedding, numpy.ones((len(caption)+1,len(caps)), dtype='float32'))
+                    bff = model['f_w2v2'](bembedding, numpy.ones((len(caption)+1,len(caps)), dtype='float32'))
+                else:
+                    uff = model['f_w2v'](uembedding, numpy.ones((len(caption),len(caps)), dtype='float32'))
+                    bff = model['f_w2v2'](bembedding, numpy.ones((len(caption),len(caps)), dtype='float32'))
+                if use_norm:
+                    for j in range(len(uff)):
+                        uff[j] /= norm(uff[j])
+                        bff[j] /= norm(bff[j])
+                for ind, c in enumerate(caps):
+                    ufeatures[c] = uff[ind]
+                    bfeatures[c] = bff[ind]
+            except:
+                print "ERROR, SKIPPING LINE"
+
     
     features = numpy.c_[ufeatures, bfeatures]
     return features

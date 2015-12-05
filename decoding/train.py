@@ -174,62 +174,65 @@ def trainer(X, C, stmodel,
         print 'Epoch ', eidx
 
         for x, c in train_iter:
-            n_samples += len(x)
-            uidx += 1
+            try:
+                n_samples += len(x)
+                uidx += 1
 
-            x, mask, ctx = homogeneous_data.prepare_data(x, c, worddict, stmodel, maxlen=maxlen_w, n_words=n_words)
+                x, mask, ctx = homogeneous_data.prepare_data(x, c, worddict, stmodel, maxlen=maxlen_w, n_words=n_words)
 
-            if x == None:
-                print 'Minibatch with zero sample under length ', maxlen_w
-                uidx -= 1
-                continue
+                if x == None:
+                    print 'Minibatch with zero sample under length ', maxlen_w
+                    uidx -= 1
+                    continue
 
-            ud_start = time.time()
-            cost = f_grad_shared(x, mask, ctx)
-            f_update(lrate)
-            ud = time.time() - ud_start
+                ud_start = time.time()
+                cost = f_grad_shared(x, mask, ctx)
+                f_update(lrate)
+                ud = time.time() - ud_start
 
-            if numpy.isnan(cost) or numpy.isinf(cost):
-                print 'NaN detected'
-                return 1., 1., 1.
+                if numpy.isnan(cost) or numpy.isinf(cost):
+                    print 'NaN detected'
+                    return 1., 1., 1.
 
-            if numpy.mod(uidx, dispFreq) == 0:
-                print 'Epoch ', eidx, 'Update ', uidx, 'Cost ', cost, 'UD ', ud
+                if numpy.mod(uidx, dispFreq) == 0:
+                    print 'Epoch ', eidx, 'Update ', uidx, 'Cost ', cost, 'UD ', ud
 
-            if numpy.mod(uidx, saveFreq) == 0:
-                print 'Saving...',
+                if numpy.mod(uidx, saveFreq) == 0:
+                    print 'Saving...',
 
-                params = unzip(tparams)
-                numpy.savez(saveto, history_errs=[], **params)
-                pkl.dump(model_options, open('%s.pkl'%saveto, 'wb'))
-                print 'Done'
+                    params = unzip(tparams)
+                    numpy.savez(saveto, history_errs=[], **params)
+                    pkl.dump(model_options, open('%s.pkl'%saveto, 'wb'))
+                    print 'Done'
 
-            if numpy.mod(uidx, sampleFreq) == 0:
-                x_s = x
-                mask_s = mask
-                ctx_s = ctx
-                for jj in xrange(numpy.minimum(10, len(ctx_s))):
-                    sample, score = gen_sample(tparams, f_init, f_next, ctx_s[jj].reshape(1, model_options['dimctx']), model_options,
-                                               trng=trng, k=1, maxlen=100, stochastic=False, use_unk=False)
-                    print 'Truth ',jj,': ',
-                    for vv in x_s[:,jj]:
-                        if vv == 0:
-                            break
-                        if vv in word_idict:
-                            print word_idict[vv],
-                        else:
-                            print 'UNK',
-                    print
-                    for kk, ss in enumerate([sample[0]]):
-                        print 'Sample (', kk,') ', jj, ': ',
-                        for vv in ss:
+                if numpy.mod(uidx, sampleFreq) == 0:
+                    x_s = x
+                    mask_s = mask
+                    ctx_s = ctx
+                    for jj in xrange(numpy.minimum(10, len(ctx_s))):
+                        sample, score = gen_sample(tparams, f_init, f_next, ctx_s[jj].reshape(1, model_options['dimctx']), model_options,
+                                                   trng=trng, k=1, maxlen=100, stochastic=False, use_unk=False)
+                        print 'Truth ',jj,': ',
+                        for vv in x_s[:,jj]:
                             if vv == 0:
                                 break
                             if vv in word_idict:
                                 print word_idict[vv],
                             else:
                                 print 'UNK',
-                    print
+                        print
+                        for kk, ss in enumerate([sample[0]]):
+                            print 'Sample (', kk,') ', jj, ': ',
+                            for vv in ss:
+                                if vv == 0:
+                                    break
+                                if vv in word_idict:
+                                    print word_idict[vv],
+                                else:
+                                    print 'UNK',
+                        print
+            except:
+                print "ERROR, SKIPPING LINE"
 
         print 'Seen %d samples'%n_samples
 
