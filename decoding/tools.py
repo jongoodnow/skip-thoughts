@@ -13,14 +13,7 @@ from utils import load_params, init_tparams
 from model import init_params, build_sampler
 from search import gen_sample
 
-#-----------------------------------------------------------------------------#
-# Specify model and dictionary locations here
-#-----------------------------------------------------------------------------#
-path_to_model = '/u/rkiros/research/semhash/models/toydec.npz'
-path_to_dictionary = '/ais/gobi3/u/rkiros/flickr8k/dictionary.pkl'
-#-----------------------------------------------------------------------------#
-
-def load_model():
+def load_model(path_to_model, path_to_dictionary):
     """
     Load a trained model for decoding
     """
