@@ -77,7 +77,7 @@ def trainer(X, C, stmodel,
     if reload_ and os.path.exists(saveto):
         print 'reloading...' + saveto
         with open('%s.pkl'%saveto, 'rb') as f:
-            models_options = pkl.load(f)
+            model_options = pkl.load(f)
 
     # load dictionary
     print 'Loading dictionary...'
