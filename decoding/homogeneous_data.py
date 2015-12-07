@@ -68,8 +68,8 @@ class HomogeneousData():
         self.len_indices_pos[self.len_unique[self.len_idx]] += curr_batch_size
         self.len_curr_counts[self.len_unique[self.len_idx]] -= curr_batch_size
 
-        caps = [self.caps[ii] for ii in curr_indices]
-        feats = [self.feats[ii] for ii in curr_indices]
+        caps = [self.caps[ii] for ii in curr_indices if ii < len(self.caps)]
+        feats = [self.feats[ii] for ii in curr_indices if ii < len(self.feats)]
 
         return caps, feats
 

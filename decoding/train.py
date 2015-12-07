@@ -232,7 +232,7 @@ def trainer(X, C, stmodel,
                                     print 'UNK',
                         print
             except:
-                print "ERROR, SKIPPING LINE"
+                print "ERROR:", sys.exc_info()[0]
 
         print 'Seen %d samples'%n_samples
 
